@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui/css/layui.css"/>
+
+<body style="margin:auto ;width:800px;height: 600px">
+
+<!---->
+<form style="margin: 170px" class="layui-form layui-form-pane" action="/shiro/gologin" method="post">
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" lay-verify="required" autocomplete="off" placeholder="请输入用户名" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-inline">
+            <input type="text" name="email" lay-verify="required" placeholder="请输入密码" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">验证码</label>
+        <div class="layui-input-inline">
+            <input type="text" name="cap"  placeholder="请输入验证码" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+   <input type="submit" value="登录">
+
+    <!--<div>
+        <button type="button" class="layui-btn layui-btn-primary">重置</button>
+        <button type="button" type="submit" class="layui-btn" lay-submit lay-filter="login">登录</button>
+    </div>-->
+
+
+</form>
+</body>
+
+<script src="http://code.jquery.com/jquery-2.2.4.js"
+        integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+        crossorigin="anonymous"></script>
+<script src="https://www.layuicdn.com/layui/layui.js"></script>
+
+<script>
+/*    layui.use('form', function () {
+        var form = layui.form
+        form.on('submit(login)', function (data) {
+            console.log(data)
+            $.ajax({
+                url:"gologin",
+                data : data.field,
+                type:"post",
+                success:function (data) {
+                    if ("true" === data){
+                        window.location.href="/shiro/toindex";
+                    } else if ("false" === data) {
+                        window.location.href="/shiro/tologinPage";
+                    }
+
+                }
+            })
+        });
+
+
+    });*/
+
+
+</script>
+</html>

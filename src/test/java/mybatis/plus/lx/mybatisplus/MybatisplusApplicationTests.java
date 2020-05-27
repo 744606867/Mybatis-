@@ -9,6 +9,7 @@ import mybatis.plus.lx.mybatisplus.bean.User;
 import mybatis.plus.lx.mybatisplus.dao.UserMapper;
 import mybatis.plus.lx.mybatisplus.service.impl.AreaService;
 import mybatis.plus.lx.mybatisplus.service.impl.UserService;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -168,9 +169,13 @@ class MybatisplusApplicationTests {
             System.out.println(k+"=="+v);
         });
     }
-
-
-
+    //md5
+    @Test
+    public void testSelect16(){
+        //用户注册  对密码加密
+        Md5Hash md5Hash = new Md5Hash("123","liu",1024);
+        System.out.println(md5Hash.toHex());
+    }
 
 
 

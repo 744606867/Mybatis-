@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>attribute</title>
+</head>
+<link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui/css/layui.css"/>
+<style>
+    .el-tag {
+        background-color: rgba(2, 161, 233, .1);
+        padding: 0 10px;
+        height: 32px;
+        line-height: 30px;
+        font-size: 12px;
+        color: #02a1e9;
+        border-radius: 4px;
+        box-sizing: border-box;
+        border: 1px solid rgba(2, 161, 233, .2);
+        white-space: nowrap;
+    }
+
+
+    .layui-btn-radius {
+        border-radius: 5px;
+    }
+
+    /*.layui-table-page{
+        margin-left: 650px;
+    }*/
+</style>
+<body style="padding-left: 200px ;margin-top: 20px">
+<div style="width: 1100px;height: 800px;">
+    <form class="layui-form" id="search" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="text-align: left">属性名称</label>
+            <div class="layui-input-inline">
+                <input style="height:35px;margin-left:-20px;margin-top:2px" type="text" name="propName"
+                       placeholder="属性名称" autocomplete="off" class="layui-input">
+            </div>
+
+            <div class="layui-inline">
+                <div class=" demoTable">
+                    <button type="button" class="layui-btn layui-btn-normal layui-btn-radius" lay-submit lay-filter="search">
+                        <i class="layui-icon-search" style="color: #f1edff;">&#xe615;</i>搜索
+                    </button>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class=" demoTable">
+                    <button type="button" class="layui-btn layui-btn-normal layui-btn-radius" lay-submit lay-filter="clear">
+                        清空
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script type="text/html" id="toolbarDemo">
+        <div class=" demoTable">
+            <button type="button" lay-event="addData" class="layui-btn layui-btn-normal layui-btn-radius">
+                添加数据
+            </button>
+        </div>
+    </script>
+    <table class="layui-hide" id="test" lay-filter="test"></table>
+</div>
+
+
+<div id="addData" class="x-body" style="display: none;margin: 40px 60px 60px">
+    <form class="layui-form" id="add-form" action="">
+        <table class="layui-table" style="background-color: #fffbf0;margin-bottom: 30px
+">
+            <thead>
+            <tr>
+                <th style="text-align: center">属性名称</th>
+                <th style="text-align: center">属性值</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td style="text-align: center;width: 240px">
+                    <input type="text" name="propname" placeholder="请输入内容" AUTOCOMPLETE="off" class="layui-input">
+                </td>
+
+                <td style="text-align: center ;width: 240px" style="position: absolute;" id="att">
+                    <div id="attrs" class="layui-form-item" style="margin-top: -4px;height: 20px ">
+                        <input type="text" name="propcon" placeholder="请输入内容" style="width: 180px" AUTOCOMPLETE="off"
+                               class="attrsinput layui-input">
+                    </div>
+                    <a id="addattr" style="position: absolute;top: 8px;right: 75px;" href="javascript:;"
+                       class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe654;</i></a>
+                </td>
+
+            </tr>
+
+            </tbody>
+        </table>
+
+        <div class="layui-form-item " style="margin-left: 536px">
+            <button class="layui-btn layui-btn-primary">取消</button>
+            <button class="layui-btn" lay-submit lay-filter="addattr">确定</button>
+        </div>
+    </form>
+
+</div>
+
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="rank">
+    {{d.LAY_TABLE_INDEX+1}}
+</script>
+
+</body>
+<script src="http://code.jquery.com/jquery-2.2.4.js"
+        integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+        crossorigin="anonymous"></script>
+<script src="https://www.layuicdn.com/layui/layui.js"></script>
+<script>
+
+    layui.use(['table', 'form'], function () {
+        var table = layui.table;
+        var form = layui.form;
+
+        form.on('submit(search)', function (data) {
+            console.log(data.field)
+            table.reload('test',{
+                where : data.field
+            })
+
+        });
+
+        form.on('submit(clear)', function (data) {
+            $("input[name=propName]").val("")
+            table.reload('test',{
+                where : ''
+            })
+        });
+
+
+        form.on('submit(addattr)', function (data) {
+            //获取 表单中所有数据
+            var nodeData = data.field;
+            console.log(nodeData)
+            var arr = [];
+            $(".attrsinput").each(function (i, n) {
+                arr.push($(n).val())
+            })
+            $.ajax({
+                url: 'addattr',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    propname: nodeData.propname,
+                    propcon: JSON.stringify(arr)
+                },
+                success: function (r) {
+                    if (r > 0) {
+                        layer.msg('添加成功', {icon: 6});
+                        layer.close(index0pen);
+                        table.reload('test', {
+                            data: data
+                        })
+                    } else {
+                        layer.msg('添加失败', {icon: 5});
+                    }
+                },
+                error: function (s) {
+                    layer.msg('保存出错了');
+                }
+            });
+            return false;
+        });
+
+
+        table.render({
+            elem: '#test'
+            , url: 'page'
+            , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , defaultToolbar: ['filter']
+            , title: '属性表'
+            , cols: [[
+                {field: 'rank', title: '序号', width: 80, sort: true, fixed: 'left', templet: '#rank'}
+                , {field: 'propId', title: '属性ID', width: 255, fixed: 'left', unresize: true, align: 'center'}
+                , {field: 'propName', title: '属性名称', width: 255, align: 'center'}
+                , {
+                    field: 'prodPropValues', title: '属性值', width: 255, align: 'center', templet: function (res) {
+                        //console.log(res.prodPropValues)
+                        var str = "";
+                        for (var i = 0; i < res.prodPropValues.length; i++) {
+                            str += '<span class="el-tag">' + res.prodPropValues[i].prop_value + '</span>'
+                        }
+                        return str
+                    }
+                }
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 249, fixed: 'right', align: 'center'}
+            ]]
+            , page: true
+        });
+
+
+        //头工具栏事件
+        table.on('toolbar(test)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                case 'addData':
+                    $("input[name=propname]").val("");
+                    $("input[name=propcon]").val("");
+                    $("#att>div:gt(0)").remove();
+                    index0pen = layer.open({
+                        type: 1,
+                        title: "新增",
+                        area: ['800px', '600px'],
+                        content: $("#addData"),
+                    });
+                    break;
+
+            }
+            ;
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function (obj) {
+            console.log(obj)
+            if (obj.event === 'del') {
+                layer.confirm('真的要删除吗', function (index) {
+                    $.ajax({
+                        data: {
+                            propid: obj.data.propId
+                        },
+                        url: "delattr",
+                        success: function (result) {
+                            if (result === 1) {
+                                obj.del();
+                                layer.close(index);
+                                layer.msg('删除成功', {icon: 6});
+                            } else {
+                                layer.msg('删除失败', {icon: 5});
+                            }
+                        }
+                    });
+
+                });
+            } else if (obj.event === 'edit') {
+                layer.prompt({
+                    formType: 2
+                    , value: data.email
+                }, function (value, index) {
+                    obj.update({
+                        email: value
+                    });
+                    layer.close(index);
+                });
+            }
+        });
+    });
+
+
+    $("#addattr").click(function () {
+        console.log(111)
+        if ($("#att>div:last>input").val() !== "") {
+            var s = "<div id=\"attrs\" class=\"layui-form-item\" style=\"margin-top: -4px;height: 20px \">\n" +
+                "                        <input type=\"text\" name=\"propcon\" AUTOCOMPLETE=\"off\" placeholder=\"请输入内容\" style=\"width: 180px\" class=\"attrsinput layui-input\">\n" +
+                "                    </div>";
+            $("#addattr").before(s)
+        } else {
+            layer.msg("请输入内容")
+        }
+    });
+
+
+
+
+
+    var lastTime = new Date().getTime();
+    var currentTime = new Date().getTime();
+    var timeOut = 10 * 60 * 1000; //设置超时时间： 15分
+
+    $(function(){
+        /* 鼠标移动事件 */
+        $(document).mouseover(function(){
+            lastTime = new Date().getTime(); //更新操作时间
+
+        });
+    });
+
+    function toLoginPage(){
+        currentTime = new Date().getTime(); //更新当前时间
+        if(currentTime - lastTime > timeOut){ //判断是否超时
+            window.location.replace("./login.html")
+           /*//关闭当前页
+           // window.parent.location.replace("/");//刷新父级页面;*/
+          /* $.ajax({
+               url:'tologin',
+               success:function (data) {
+                   if (data === 1){
+                     /!*  window.location.replace("./login.html")*!/
+                       console.log("跳转成功")
+                   }
+               }
+           })*/
+        }
+    }
+
+    /* 定时器
+     * 间隔1秒检测是否长时间未操作页面
+     */
+    window.setInterval(toLoginPage, 1000);
+
+
+
+</script>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui/css/layui.css"/>
+<style>
+    .layui-form-item {
+        margin-top: 15px;
+    }
+</style>
+<body style="margin-left: 500px">
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>连接线风格</legend>
+</fieldset>
+<div id="test13" class="demo-tree demo-tree-box" style="width: 300px; height: 400px; overflow: scroll;"></div>
+<!--添加node  弹出框-->
+
+<div id="add-node" class="x-body" style="display: none;">
+    <form class="layui-form" id="add-form" action="">
+        <input type="text" id="NodeID" name="id" style="display:none;" class="layui-input">
+        <div class="layui-form-item center">
+            <label class="layui-form-label" style="width: 100px">节点名字</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" style="width: 240px" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="addnode">确定</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!--更新node  弹出框-->
+
+<div id="update-node" class="x-body" style="display: none;">
+    <form class="layui-form" id="add-form" action="">
+        <input type="text" id="nodeId" name="id" style="display:none;" class="layui-input">
+        <div class="layui-form-item center">
+            <label class="layui-form-label" style="width: 100px">节点名字</label>
+            <div class="layui-input-block">
+                <input type="text" id="Title" name="title" style="width: 240px" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="updatenode">确定</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+</body>
+<script
+        src="http://code.jquery.com/jquery-2.2.4.js"
+        integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+        crossorigin="anonymous"></script>
+<script src="https://www.layuicdn.com/layui/layui.js"></script>
+<script>
+    $(function () {
+        layui.use(['tree', 'util', 'form'], function () {
+            var tree = layui.tree
+            var form = layui.form
+
+            //开启节点操作图标
+            tree.render({
+                elem: '#test13'
+                , data: getData()
+                , id: 'treeId'
+                , edit: ['add', 'update', 'del'] //操作节点的图标
+                ,spread : true
+                , operate: function (obj) {
+                    var type = obj.type;
+                    if (type === 'add') {
+                        /* console.log(obj.data)*/
+                        $("#NodeID").val(obj.data.area_id);
+                        index0pen = layer.open({
+                            type: 1,
+                            title: "新增",
+                            area: ['400px', '300px'],
+                            content: $("#add-node")
+                        });
+
+                    } else if (type === 'update') {
+                        console.log(obj.data)
+                        $("#nodeId").val(obj.data.area_id);
+                        $("#Title").val(obj.data.title);
+                        index0pen = layer.open({
+                            type: 1,
+                            title: "更新",
+                            area: ['500px', '200px'],
+                            content: $("#update-node"),
+                        });
+
+                    } else if (type === 'del') {
+                        if (obj.data.children.length > 0) {
+                            layer.msg('无法级联删除')
+                            tree.reload('treeId', {data: getData()});
+                        } else {
+                            console.log(obj.data)
+                            $.ajax({
+                                url: "/delNode",
+                                data: {
+                                    "nodeid": obj.data.area_id
+                                },
+                                success: function (res) {
+                                    if (res > 0) {
+                                        layer.msg('删除成功', {icon: 6});
+                                    } else {
+                                        layer.msg('删除失败', {icon: 5});
+                                    }
+                                }
+                            })
+                        }
+
+                    }
+                }
+
+            });
+
+            function getData() {
+                var data = [];
+                $.ajax({
+                    url: "/getcity",
+                    async: false,
+                    success: function (result) {
+                        console.log(result)
+                        data = result;
+                    }
+                });
+                return data;
+            }
+
+
+            form.on('submit(addnode)', function (data) {
+                //获取 表单中所有数据
+                var nodeData = data.field;
+                $.ajax({
+                    url: '/addNode',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        nodetext: nodeData.title,
+                        nodepid: nodeData.id
+                    },
+                    success: function (r) {
+                        if (r > 0) {
+                            tree.spread
+                            layer.msg('添加成功', {icon: 6});
+                            layer.close(index0pen);
+                            //debugger
+                            $(".layui-tree-txt").each(function (i,txt) {
+                                if ($(txt).text() === "未命名"){
+                                    $(txt).text(nodeData.title)
+                                }
+                            })
+
+                            //tree.reload('treeId', {data: getData()});
+                        } else {
+                            layer.msg('添加失败', {icon: 5});
+                        }
+                    },
+                    error: function (s) {
+                        layer.msg('保存出错了');
+                    }
+                });
+                return false;
+            });
+
+
+            form.on('submit(updatenode)', function (data) {
+                //获取 表单中所有数据
+                var nodeData = data.field;
+                $.ajax({
+                    url: '/updateNode',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        nodetext: nodeData.title,
+                        nodeid: nodeData.id
+                    },
+                    success: function (r) {
+                        if (r > 0) {
+                            layer.msg('更新成功', {icon: 6});
+                            layer.close(index0pen);
+                            //tree.reload('treeId', {data: getData()});
+                        } else {
+                            layer.msg('更新失败', {icon: 5});
+                        }
+                    },
+                    error: function (s) {
+                        layer.msg('更新出错了');
+                    }
+                });
+                return false;
+            });
+
+
+        })
+
+    })
+
+</script>
+</html>
